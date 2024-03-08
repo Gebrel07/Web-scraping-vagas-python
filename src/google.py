@@ -1,3 +1,5 @@
+from typing import Any
+
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.by import By
@@ -31,7 +33,7 @@ class Google:
         self._search_jobs(url)
 
         _continue = True
-        job_data = []
+        job_data: list[dict[str, Any]] = []
         joblist = self._get_joblist()
         while _continue:
             # get job data
@@ -56,7 +58,7 @@ class Google:
         return job_data
 
     def _get_data(self, joblist: list[WebElement]):
-        res = []
+        res: list[dict[str, Any]] = []
         for job in joblist:
             job.click()
             data = {
