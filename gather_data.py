@@ -12,21 +12,18 @@ def main():
     handler = JobHandler()
 
     print("Collecting data...")
+    g = Google(headless=True)
+    job_data = g.gather_job_data(search_term="python", limit=5)
 
-    g = Google(headless=False)
-    job_data = g.gather_job_data(search_term="python", limit=200)
+    print("Processing data...")
+    filtered_data = handler.filter_new_data(job_data)
+    if not filtered_data:
+        print("No new data found.")
+        return None
 
-    print("Collection done.")
-
-    # TODO: make sure there Job data doesnt already
-    # exist in db before inserting use title + company as search params
     print("Inserting in database...")
-
-    res = handler.insert_many(job_data)
-
+    res = handler.insert_many(filtered_data)
     print(f"Inserted: {res}")
-
-    print("Done!")
 
 
 if __name__ == "__main__":
@@ -34,5 +31,6 @@ if __name__ == "__main__":
 
     try:
         main()
+        print("Done!")
     except Exception as err:
         logger.error(err, exc_info=True)
