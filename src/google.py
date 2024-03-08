@@ -1,7 +1,7 @@
 from typing import Any
 
-from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
+from selenium.webdriver import Firefox, FirefoxOptions, Remote
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webelement import WebElement
 
@@ -12,7 +12,7 @@ class Google:
     Uses Firefox
     """
 
-    def __init__(self, headless: bool = False) -> None:
+    def __init__(self, headless: bool = True) -> None:
         self._base_url = "https://www.google.com"
 
         # NOTE: add this parameter to the url to force Google
@@ -21,14 +21,20 @@ class Google:
         self._joblist_param = "ibp=htl;jobs"
 
         # set driver options
-        self._driver_options = webdriver.FirefoxOptions()
+        self._driver_options = FirefoxOptions()
         if headless:
             self._driver_options.add_argument("-headless")
 
-        # start driver
-        self._driver = webdriver.Firefox(options=self._driver_options)
+        self._driver: Remote | None = None
 
-    def gather_job_data(self, search_term: str, limit: int = 20):
+    def open_driver(self):
+        self._driver = Firefox(options=self._driver_options)
+
+    def close_driver(self):
+        self._driver.close()
+        self._driver = None
+
+    def gather_job_data(self, search_term: str, limit: int = 50):
         url = self._make_search_url(search_term)
         self._search_jobs(url)
 
@@ -51,8 +57,6 @@ class Google:
 
             # update joblist with new jobs only
             joblist = new_joblist[len(job_data):]
-
-        self._driver.close()
 
         return job_data
 

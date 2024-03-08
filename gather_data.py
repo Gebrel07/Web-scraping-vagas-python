@@ -12,8 +12,10 @@ def main():
     handler = JobHandler()
 
     print("Collecting data...")
-    g = Google(headless=True)
-    job_data = g.gather_job_data(search_term="python", limit=5)
+    g = Google(headless=False)
+    g.open_driver()
+    job_data = g.gather_job_data(search_term="python", limit=300)
+    g.close_driver()
 
     print("Processing data...")
     filtered_data = handler.filter_new_data(job_data)
