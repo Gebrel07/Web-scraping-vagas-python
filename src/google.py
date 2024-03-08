@@ -16,7 +16,7 @@ class Google:
         self._base_url = "https://www.google.com"
 
         # NOTE: add this parameter to the url to force Google
-        # the to redirect the browser to the Jobs list page instead of
+        # to redirect the browser to the Jobs list page instead of
         # the normal results page
         self._joblist_param = "ibp=htl;jobs"
 
@@ -32,26 +32,25 @@ class Google:
         url = self._make_search_url(search_term)
         self._search_jobs(url)
 
-        _continue = True
         job_data: list[dict[str, Any]] = []
         joblist = self._get_joblist()
-        while _continue:
-            # get job data
-            job_data.extend(self._get_data(joblist))
-
+        while True:
             # stop if limit is reached
             if len(job_data) >= limit:
-                _continue = False
+                break
+
+            # get job data
+            job_data.extend(self._get_data(joblist))
 
             # get updated job list
             new_joblist = self._get_joblist()
 
             # stop if there are no new jobs in list
-            if len(new_joblist) <= len(joblist):
-                _continue = False
+            if len(new_joblist) <= len(job_data):
+                break
 
             # update joblist with new jobs only
-            joblist = new_joblist[len(joblist):]
+            joblist = new_joblist[len(job_data):]
 
         self._driver.close()
 
