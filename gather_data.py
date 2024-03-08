@@ -2,7 +2,7 @@ from dotenv import load_dotenv
 
 from src.google import Google
 from src.logger import Logger
-from src.models.job.job_handler import JobHandler
+from src.models.job_handler import JobHandler
 
 
 def main():
@@ -13,8 +13,8 @@ def main():
 
     print("Collecting data...")
 
-    g = Google(headless=True)
-    job_data = g.gather_job_data(search_term="python", limit=5)
+    g = Google(headless=False)
+    job_data = g.gather_job_data(search_term="python", limit=200)
 
     print("Collection done.")
 
