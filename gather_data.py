@@ -12,9 +12,9 @@ def main():
     handler = JobHandler()
 
     print("Collecting data...")
-    g = Google(headless=False)
+    g = Google(headless=True)
     g.open_driver()
-    job_data = g.gather_job_data(search_term="python", limit=300)
+    job_data = g.gather_job_data(search_term="python", limit=300, language="pt")
     g.close_driver()
 
     print("Processing data...")

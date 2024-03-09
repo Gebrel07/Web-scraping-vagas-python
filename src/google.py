@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Literal
 
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver import Firefox, FirefoxOptions, Remote
@@ -34,8 +34,16 @@ class Google:
         self._driver.close()
         self._driver = None
 
-    def gather_job_data(self, search_term: str, limit: int = 50):
-        url = self._make_search_url(search_term)
+    def gather_job_data(
+        self,
+        search_term: str,
+        limit: int = 50,
+        language: Literal["pt", "en", "es"] | None = None,
+    ):
+        url = self._make_search_url(search_term=search_term)
+        if language:
+            url = self._set_lang(url=url, lang=language)
+
         self._search_jobs(url)
 
         job_data: list[dict[str, Any]] = []
@@ -77,6 +85,14 @@ class Google:
     def _make_search_url(self, search_term: str):
         search_term = search_term.replace(" ", "+").lower()
         return f"{self._base_url}/search?q={search_term}&{self._joblist_param}"
+
+    def _set_lang(self, url: str, lang: str):
+        lang_params = (
+            f"htischips=language:{lang}#htivrt=jobs&"
+            f"htichips=language:{lang}&"
+            f"htischips=language;{lang}"
+        )
+        return f"{url}&{lang_params}"
 
     def _search_jobs(self, url: str):
         self._driver.get(url)
