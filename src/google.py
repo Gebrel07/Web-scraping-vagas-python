@@ -111,6 +111,9 @@ class Google:
         self._driver.get(url)
 
     def _get_joblist(self):
+        WebDriverWait(self._driver, timeout=5).until(
+            EC.presence_of_element_located((By.CLASS_NAME, "iFjolb"))
+        )
         return self._driver.find_elements(By.CLASS_NAME, "iFjolb")
 
     def _wait_for_job_div(self):
