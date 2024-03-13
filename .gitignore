@@ -1,6 +1,12 @@
+# my files
 .venv
-.vscode
 .env
 *.sqlite
 *.log
+dashboard/
+
+# vscode
+.vscode
+
+# python
 __pycache__
