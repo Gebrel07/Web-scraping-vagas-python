@@ -9,8 +9,8 @@ from sqlalchemy.orm import Session
 
 from src.logger import Logger
 
-from .job_descr import JobDescr
 from .job import Job
+from .job_descr import JobDescr
 
 
 class JobDescrHandler:
@@ -25,13 +25,11 @@ class JobDescrHandler:
 
         # install nltk data in virtual environment
         self._NLTK_DIR = ".venv/nltk_data"
-        nltk.download(
-            "punkt", quiet=True, download_dir=self._NLTK_DIR
-        )  # tokenizer
+        nltk.download("punkt", quiet=True, download_dir=self._NLTK_DIR)  # tokenizer
         nltk.download("stopwords", quiet=True, download_dir=self._NLTK_DIR)
 
     def generate_word_freqs(self):
-        """Generate work frequencies for all companys
+        """Generate work frequencies for all companies
         and stores them in database
         """
         inserted = 0
@@ -59,14 +57,25 @@ class JobDescrHandler:
         tokens = word_tokenize(descrs_str, language=self.language)
         # filter tokens
         stopwords = nltk.corpus.stopwords.words(self.language)
-        tokens = [
-            token.lower()
-            for token in tokens
-            if token not in stopwords and token.isalnum()
-        ]
+        tokens = self._handle_tokens(tokens=tokens, stopwords=stopwords)
         # get word freq
         freqs = FreqDist(tokens)
         return freqs.most_common()
+
+    def _handle_tokens(self, tokens: list[str], stopwords: list[str]):
+        res = []
+        for token in tokens:
+            token = token.lower().replace(" ", "")
+            if len(token) < 3:
+                continue
+            if not token.isalnum():
+                continue
+            if token.isnumeric():
+                continue
+            if token in stopwords:
+                continue
+            res.append(token)
+        return res
 
     def _freqs_to_json(self, company: str, freqs: list[Any]):
         """Convert word frequency to json list"""
