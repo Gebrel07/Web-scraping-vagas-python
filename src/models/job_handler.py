@@ -13,7 +13,7 @@ from .job import Job
 class JobHandler:
     def __init__(self) -> None:
         self.logger = Logger()
-        self.engine = create_engine(os.environ["SQLITE_URI"])
+        self.engine = create_engine(os.environ["DB_URI"])
         Job.metadata.create_all(self.engine)
 
     def insert_many(self, jobs: list[dict[str, Any]]):

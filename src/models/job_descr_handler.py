@@ -20,7 +20,7 @@ class JobDescrHandler:
         self.logger = Logger()
 
         # create table if it doesnt exist
-        self.engine = create_engine(os.environ["SQLITE_URI"])
+        self.engine = create_engine(os.environ["DB_URI"])
         JobDescr.metadata.create_all(self.engine)
 
         # install nltk data in virtual environment
