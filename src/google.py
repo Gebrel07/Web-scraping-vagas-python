@@ -4,6 +4,10 @@ from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver import Firefox, FirefoxOptions, Remote
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webelement import WebElement
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.wait import WebDriverWait
+
+from .logger import Logger
 
 
 class Google:
@@ -26,6 +30,8 @@ class Google:
             self._driver_options.add_argument("-headless")
 
         self._driver: Remote | None = None
+
+        self._logger = Logger()
 
     def open_driver(self):
         self._driver = Firefox(options=self._driver_options)
@@ -64,7 +70,7 @@ class Google:
                 break
 
             # update joblist with new jobs only
-            joblist = new_joblist[len(job_data):]
+            joblist = new_joblist[len(job_data) :]
 
         return job_data
 
@@ -72,6 +78,8 @@ class Google:
         res: list[dict[str, Any]] = []
         for job in joblist:
             job.click()
+            if not self._wait_for_job_div():
+                continue
             data = {
                 "title": self._get_title(),
                 "company": self._get_company_name(),
@@ -100,8 +108,23 @@ class Google:
     def _get_joblist(self):
         return self._driver.find_elements(By.CLASS_NAME, "iFjolb")
 
+    def _wait_for_job_div(self):
+        xpath = (
+            "/html/body/div[2]/div/div[2]/"
+            "div[1]/div/div/div[3]/div[2]/"
+            "div/div[1]/div/div"
+        )
+        try:
+            WebDriverWait(self._driver, timeout=5).until(
+                method=EC.presence_of_element_located((By.XPATH, xpath)),
+                message="Job data did not load",
+            )
+            return True
+        except Exception as err:
+            self._logger.error(err, exc_info=True)
+            return False
+
     def _get_title(self):
-        # xpath = "./div/div[1]/div[2]/div/div/div[2]/div[2]"
         xpath = (
             "/html/body/div[2]/div/div[2]/"
             "div[1]/div/div/div[3]/div[2]/"
@@ -160,9 +183,7 @@ class Google:
         child_span = self._driver.find_element(By.XPATH, child_span_xpath)
 
         # change visibility of span to capture text
-        self._driver.execute_script(
-            "arguments[0].style.display = 'block'", child_span
-        )
+        self._driver.execute_script("arguments[0].style.display = 'block'", child_span)
 
         return parent_span.text + child_span.text
 
