@@ -52,6 +52,11 @@ class Google:
 
         self._search_jobs(url)
 
+        # NOTE: Wait for url to change: google reloads the page with a different url after
+        # the initial search. Due to the page reload, this is necessary to avoid
+        # StaleElement exception when using the joblist
+        res = WebDriverWait(self._driver, 5).until(EC.url_changes(url))
+
         job_data: list[dict[str, Any]] = []
         joblist = self._get_joblist()
         while True:
